@@ -29,7 +29,7 @@ using namespace cv;
 static const double interval = 1;
 static const double block_width = 17;	//Suppose the block's block_width is 2 and block_height is 1
 static const double block_height = 17;
-bool debug = 1;
+bool debug = 0;
 const int offset=1000;  
 const double eps=1e-8;
 
@@ -386,14 +386,35 @@ void MyWidget::conversion_of_coordinates(Vec3f &from, Vec3f &to, float scale, fl
 	to[2] = -x * siny + y * sinx * cosy + z * cosx * cosy;
 }
 
-Mat MyWidget::getGFloor(){
-	Rect rect = getRect();
-	Mat GFloor(2 * SEMI_LENGTH_SIDE * MM_PER_PIXEL, 2 * SEMI_LENGTH_SIDE * MM_PER_PIXEL, CV_8UC1, Scalar(255));
+void MyWidget::getGFloor(QString folder){
+	//Rect rect = getRect();
+	QDir dir;
+	Calculator::removeDirWithContent(folder);
+	dir.mkdir(folder);
+	QString datafile = folder + QString("/") + QString("data.txt");
+	ofstream fout(datafile.toStdString().c_str());
+
+	int num_x = ceil((max_x()-min_x())/block_width);
+	int num_z = ceil((max_z()-min_z())/block_height);
+	int cur = 0;
+	for(int i = 0; i < num_x; i++){
+		for(int j = 0; j < num_z; j++){
+			Mat mat(ceil((block_height)*MM_PER_PIXEL2), ceil((block_width)*MM_PER_PIXEL2), CV_8UC1, Scalar(255));
+			QString imagefile = folder + QString("/%1").arg(cur) + QString(".jpg");
+			imwrite(imagefile.toStdString(), mat);
+			cur++;
+			fout << "c " << min_x()+(i+0.5)*block_width << " " << min_z()+(j+0.5)*block_height << endl;
+		}
+	}
+	fout << "#";
+	fout.close();
+	//Mat GFloor(2 * SEMI_LENGTH_SIDE * MM_PER_PIXEL, 2 * SEMI_LENGTH_SIDE * MM_PER_PIXEL, CV_8UC1, Scalar(255));
+
 	//Mat roi = GFloor(rect);
 	//Mat mat(rect.height, rect.width, CV_8UC1, Scalar(255));
 	//mat.copyTo(roi);
 
-	return GFloor;
+	//return GFloor;
 }
 
 void MyWidget::slice(float y, bool fill, QString folder){
@@ -438,7 +459,7 @@ void MyWidget::slice(float y, bool fill, QString folder){
 	vector<vector<Points>> points_in_r_set;
 
 	int num = discrete(lines, points_set);
-	fout << num << endl;
+	//fout << num << endl;
 	for(unsigned int i = 0; i < num; i++){
 		vector<int> c;
 		c.clear();
@@ -456,7 +477,8 @@ void MyWidget::slice(float y, bool fill, QString folder){
 				}
 			}
 			if(in){
-				cout << i << " in " << j << endl;
+				if(debug)
+					cout << i << " in " << j << endl;
 				contain[j].push_back(i);
 			}
 		}
@@ -560,7 +582,6 @@ float MyWidget::min_y(){
 
 	return min_y;
 }
-
 float MyWidget::max_y(){
 	if(faces_clone.size() == 0)
 		return 0;
@@ -605,7 +626,6 @@ float MyWidget::min_z(){
 
 	return min_z;
 }
-
 float MyWidget::max_z(){
 	if(faces_clone.size() == 0)
 		return 0;
@@ -617,6 +637,7 @@ float MyWidget::max_z(){
 
 	return max_z;
 }
+/*
 Rect MyWidget::getRect(){//仅用在getGFloor
 	if(faces_clone.size() == 0)
 		return Rect(0, 0, 0, 0);
@@ -637,7 +658,7 @@ Rect MyWidget::getRect(){//仅用在getGFloor
 	Rect rect((min_x + SEMI_LENGTH_SIDE) * MM_PER_PIXEL, (min_z + SEMI_LENGTH_SIDE) * MM_PER_PIXEL, (max_x - min_x) * MM_PER_PIXEL, (max_z - min_z) * MM_PER_PIXEL);
 	return rect;
 }
-
+*/
 void MyWidget::initialize(){
 	clear(faces);
 	clear(faces_clone);

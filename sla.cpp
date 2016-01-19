@@ -465,13 +465,16 @@ void SLA::btnSliceClicked(){
 	//µ×²ã
 	for(int i = 0; i < GFloor; i ++){
 		currentLayer ++;
-		Mat image = myWidget->getGFloor();
 
+		QString folder = slafile.fileroot + slafile.filename + QString("/") + slafile.filename + QString("_%1").arg(currentLayer);
+		myWidget->getGFloor(folder);
+		/*
 		QDir dir;
 		Calculator::removeDirWithContent(slafile.fileroot + slafile.filename + QString("/") + slafile.filename + QString("_%1").arg(currentLayer));
 		dir.mkdir(slafile.fileroot + slafile.filename + QString("/") + slafile.filename + QString("_%1").arg(currentLayer));
 		QString imagename = slafile.fileroot + slafile.filename + QString("/") + slafile.filename + QString("_%1").arg(currentLayer) + QString("/0.jpg");
 		imwrite(imagename.toStdString(), image);
+		*/
 	}
 
 	for(float pos = min_h; pos < max_h; pos += sliceThickness){
@@ -855,11 +858,9 @@ void SLA::readPath(QString dataFolder){
 	centers_set.clear();
 	angles.clear();
 
-	int numPolygon;
 	char c;
 	double angle, c_x, c_y;
 
-	fin >> numPolygon;
 	fin >> c;
 	while(c != '#'){
 		if(c == 'a'){

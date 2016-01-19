@@ -166,8 +166,8 @@ public:
 	float min_z();
 	float max_z();
 
-	cv::Rect getRect();
-	cv::Mat getGFloor();
+	//cv::Rect getRect();
+	void getGFloor(QString folder);
 	void slice(float y, bool fill, QString folder);
 	
 
