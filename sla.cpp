@@ -309,6 +309,7 @@ void SLA::btnLoadClicked(){
 					QString imagePath = folderPath + QString("/%1").arg(block) + QString(".jpg");
 					if(QFileInfo(imagePath).exists()){
 						QPixmap *pixmap = new QPixmap(imagePath);
+						printf("push_back %s to layer %d\n", imagePath.toStdString().c_str(), totalLayer);
 						projector->pushback(totalLayer-1, pixmap);
 						Mat *mat = new Mat(imread(imagePath.toStdString()));
 						projector->pushback(totalLayer-1, mat);
@@ -372,8 +373,10 @@ void SLA::btnGenerateClicked(){
 	for(int i = 0; i < supportinglayer; i ++){
 		Gcodes.push_back(QString("UP %1").arg(steps));
 		if(ui.cbBlock->isChecked()){
+			QString dataFolder = pathFolder + QString("%1").arg(i+1) + QString("/data.txt");
+			readPath(dataFolder);
 			for(int j = 0; j < projector->num(i); j ++){
-				Gcodes.push_back(QString("MOVE %1 %2").arg(center_x).arg(center_y));
+				Gcodes.push_back(QString("MOVE %1 %2").arg(centers_set[j].x()).arg(centers_set[j].y()));// or -centers_ser[j].x() -centers_set[j].y()
 				Gcodes.push_back(QString("SHOW IMAGE %1 %2").arg(i).arg(j));
 				Gcodes.push_back(QString("EXPOSURE %1").arg(SLexposuretime));
 				Gcodes.push_back(QString("CLOSE PROJECTOR"));
@@ -396,7 +399,7 @@ void SLA::btnGenerateClicked(){
 					angle = angles[j];
 					Gcodes.push_back(QString("ROTATE TO %1").arg(angle));
 				}
-				Gcodes.push_back(QString("MOVE %1 %2").arg(centers_set[j].x()).arg(centers_set[j].y()));
+				Gcodes.push_back(QString("MOVE %1 %2").arg(centers_set[j].x()).arg(centers_set[j].y()));// or -centers_ser[j].x() -centers_set[j].y()
 				Gcodes.push_back(QString("SHOW IMAGE %1 %2").arg(i).arg(j));
 				Gcodes.push_back(QString("EXPOSURE %1").arg(exposuretime));
 				Gcodes.push_back(QString("CLOSE PROJECTOR"));
@@ -414,6 +417,7 @@ void SLA::btnGenerateClicked(){
 	//show Gcode
 	for(int i = 0; i < Gcodes.size(); i ++){
 		ui.eGCode->append(QString("%1: ").arg(i) + Gcodes[i].line);
+		printf("%s\n", Gcodes[i].line.toStdString().c_str());
 	}
 
 	//Éú³ÉGcode
@@ -859,7 +863,7 @@ void SLA::readPath(QString dataFolder){
 	angles.clear();
 
 	char c;
-	double angle, c_x, c_y;
+	double angle = 0, c_x, c_y;
 
 	fin >> c;
 	while(c != '#'){
