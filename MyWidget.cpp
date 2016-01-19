@@ -572,7 +572,51 @@ float MyWidget::max_y(){
 
 	return max_y;
 }
+float MyWidget::min_x(){
+	if(faces_clone.size() == 0)
+		return 0;
 
+	float min_x = SEMI_LENGTH_SIDE;
+	for(int i = 0; i < faces_clone.size(); i++){
+		min_x = min_x < faces_clone[i]->min_x() ? min_x : faces_clone[i]->min_x();
+	}
+
+	return min_x;
+}
+float MyWidget::max_x(){
+	if(faces_clone.size() == 0)
+		return 0;
+
+	float max_x = -SEMI_LENGTH_SIDE;
+	for(int i = 0; i < faces_clone.size(); i ++){
+		max_x = max_x > faces_clone[i]->max_x() ? max_x : faces_clone[i]->max_x();
+	}
+
+	return max_x;
+}
+float MyWidget::min_z(){
+	if(faces_clone.size() == 0)
+		return 0;
+
+	float min_z = SEMI_LENGTH_SIDE;
+	for(int i = 0; i < faces_clone.size(); i++){
+		min_z = min_z < faces_clone[i]->min_z() ? min_z : faces_clone[i]->min_z();
+	}
+
+	return min_z;
+}
+
+float MyWidget::max_z(){
+	if(faces_clone.size() == 0)
+		return 0;
+
+	float max_z = -SEMI_LENGTH_SIDE;
+	for(int i = 0; i < faces_clone.size(); i ++){
+		max_z = max_z > faces_clone[i]->max_z() ? max_z : faces_clone[i]->max_z();
+	}
+
+	return max_z;
+}
 Rect MyWidget::getRect(){//½öÓÃÔÚgetGFloor
 	if(faces_clone.size() == 0)
 		return Rect(0, 0, 0, 0);

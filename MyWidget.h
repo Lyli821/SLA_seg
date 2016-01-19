@@ -161,6 +161,11 @@ public:
 	void conversion_of_coordinates(Vec3f &from, Vec3f &to, float scale, float rx, float ry, float rz);
 	float min_y();
 	float max_y();
+	float min_x();
+	float max_x();
+	float min_z();
+	float max_z();
+
 	cv::Rect getRect();
 	cv::Mat getGFloor();
 	void slice(float y, bool fill, QString folder);
