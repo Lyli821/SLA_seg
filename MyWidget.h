@@ -191,7 +191,7 @@ public:
 	int segment(Points &centers_r, vector<vector<double>> slXs, int ymin);
 	
 	double cross(Point_2 pi,Point_2 pj,Point_2 pk);
-	int InPolygon(const Points arr,const Point_2 &p,int on_edge=1);
+	int InPolygon(const Points arr,const Point_2 &p);
 	void getBound(Points &points_r, double &xmin, double &xmax, int &ymin, int &ymax);
 	void buildAll(vector<vector<double>> &slXs, Points polygon, int ymin, int num);
 	void mergeXs(vector<vector<double>> &slXs, vector<vector<double>> slXs2);

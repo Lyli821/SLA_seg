@@ -29,7 +29,7 @@ using namespace cv;
 static const double interval = 1;
 static const double block_width = 17;	//Suppose the block's block_width is 2 and block_height is 1
 static const double block_height = 17;
-bool debug = 0;
+bool debug = 0;//1;
 const int offset=1000;  
 const double eps=1e-8;
 
@@ -460,6 +460,7 @@ void MyWidget::slice(float y, bool fill, QString folder){
 
 	int num = discrete(lines, points_set);
 	//fout << num << endl;
+	cout << num << endl;
 	for(unsigned int i = 0; i < num; i++){
 		vector<int> c;
 		c.clear();
@@ -468,7 +469,9 @@ void MyWidget::slice(float y, bool fill, QString folder){
 	}
 	bool in;
 	for(unsigned int i = 0; i < num; i++){
-		for(unsigned int j = 0; j < num && j != i; j++){
+		for(unsigned int j = 0; j < num; j++){
+			if(j == i)
+				continue;
 			in = true;
 			for(unsigned int k = 0; k < points_set[i].size(); k++){
 				if(!InPolygon(points_set[j],points_set[i][k])){
@@ -487,6 +490,14 @@ void MyWidget::slice(float y, bool fill, QString folder){
 	double angle = 0;
 	int sum_cur = 0;
 	for(unsigned int m = 0; m < num; m++){
+		if(contain[m].size() > 0){
+			for(unsigned int i = 0; i < contain[m].size(); i++){
+				valid[contain[m][i]] = false;
+				//points_in.push_back(points_set[contain[m][i]]);
+			}
+		}
+	}
+	for(unsigned int m = 0; m < num; m++){
 		if(!valid[m]){
 			continue;
 		}
@@ -501,11 +512,10 @@ void MyWidget::slice(float y, bool fill, QString folder){
 		points_in.clear();
 		if(contain[m].size() > 0){
 			for(unsigned int i = 0; i < contain[m].size(); i++){
-				valid[contain[m][i]] = false;
+				//valid[contain[m][i]] = false;
 				points_in.push_back(points_set[contain[m][i]]);
 			}
 		}
-
 	    convexhull.clear();
 		sums.clear(); ymin_set.clear(); ymax_set.clear(); xmin_set.clear(); xmax_set.clear(); angles.clear();
 	    points_r_set.clear(); centers_r_set.clear(); centers_set.clear(); mats.clear();
@@ -1027,7 +1037,7 @@ void MyWidget::buildXs(vector<vector<double>> &slXs, vector<list<EDGE>> slAet, i
 			if(debug)
 				cout << Aet2.size() << " ";
 		    //获得每行的分界的x序列 xs
-		    if(Aet1.size() == Aet2.size()){
+		    if(Aet1.size() == Aet2.size() && Aet1.size()%2 == 0){
 				for(unsigned int j = 0; j < Aet1.size(); j+=2){
 				    xs.push_back(Aet1[j].xi <= Aet2[j].xi? Aet1[j].xi: Aet2[j].xi);
 				    xs.push_back(Aet1[j+1].xi >= Aet2[j+1].xi? Aet1[j+1].xi: Aet2[j+1].xi);
@@ -1040,6 +1050,9 @@ void MyWidget::buildXs(vector<vector<double>> &slXs, vector<list<EDGE>> slAet, i
 					    ite = ite+2;
 				    }
 			    }
+			}else{
+				xs.push_back(Aet1[0].xi <= Aet2[0].xi? Aet1[0].xi: Aet2[0].xi);
+				xs.push_back(Aet1[Aet1.size()-1].xi >= Aet2[Aet2.size()-1].xi? Aet1[Aet1.size()-1].xi: Aet2[Aet2.size()-1].xi);
 			}
 			slXs[i] = xs;
 		}
@@ -1233,10 +1246,11 @@ void MyWidget::drawSeg(vector<Mat> &mats, Mat mat0, Points centers_r, int sum_cu
 double MyWidget::cross(Point_2 pi,Point_2 pj,Point_2 pk){ // (pi,pj)X(pi,pk)  
     return (pj.x()-pi.x())*(pk.y()-pi.y())-(pj.y()-pi.y())*(pk.x()-pi.x());  
 }  
-int MyWidget::InPolygon(const Points arr,const Point_2 &p,int on_edge){ 
+int MyWidget::InPolygon(const Points arr,const Point_2 &p){ 
 	Point_2 q;
 	int len = arr.size();
-	int i=0,counter;  
+	int i=0,counter;
+	int on_edge = 1;
 	while(i<len){  
 		q = Point_2(rand()+offset,rand()+offset);//随机取一个足够远的点q 以p为起点q为终点做射线L
 		for(counter=i=0;i<len;i++){//依次对多边形的每条边进行考察  
